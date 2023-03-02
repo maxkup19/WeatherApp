@@ -9,6 +9,9 @@ import SwiftUI
 import CoreLocationUI
 
 struct WelcomeView: View {
+    
+    @EnvironmentObject var locationManager: LocationManager
+    
     var body: some View {
         VStack {
             VStack {
@@ -16,14 +19,14 @@ struct WelcomeView: View {
                     .font(.title)
                     .fontWeight(.bold)
                 
-                Text("Please share your current location to share the weather")
+                Text("Please share your current location to see the weather")
                     .padding()
             }
             .multilineTextAlignment(.center)
             .padding()
             
             LocationButton(.shareCurrentLocation) {
-                // MARK: allow location
+                locationManager.requestLocation()
             }
             .foregroundColor(.white)
             .cornerRadius(25)
@@ -32,8 +35,10 @@ struct WelcomeView: View {
     }
 }
 
+#if DEBUG
 struct WelcomeView_Previews: PreviewProvider {
     static var previews: some View {
         WelcomeView()
     }
 }
+#endif
