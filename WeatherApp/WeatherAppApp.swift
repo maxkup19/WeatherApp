@@ -11,7 +11,9 @@ import SwiftUI
 struct WeatherAppApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            WelcomeView()
+                .background(R.Appearance.color.background)
+                .preferredColorScheme(.dark)
         }
     }
 }
