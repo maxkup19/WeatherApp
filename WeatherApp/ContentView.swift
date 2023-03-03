@@ -21,8 +21,6 @@ struct ContentView: View {
             }
         }
         .background(R.Appearance.color.background)
-        .preferredColorScheme(.dark)
-        
     }
 }
 

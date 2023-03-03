@@ -19,10 +19,6 @@ struct WeatherView<WeatherVM: WeatherViewModelProtocol>: View {
     var body: some View {
         ZStack(alignment: .leading){
             
-            if weathervm.state == .loading {
-                LoadingView()
-            }
-            
             VStack{
                 title
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -34,9 +30,12 @@ struct WeatherView<WeatherVM: WeatherViewModelProtocol>: View {
                     Spacer()
                         .frame(height: 80)
                     cityImage
-                        .onTapGesture {
-                            weathervm.showSearch.toggle()
+                        .overlay {
+                            if weathervm.showLoading {
+                                LoadingView()
+                            }
                         }
+                        .onTapGesture { weathervm.showSearch.toggle() }
                     Spacer()
                 }
                 .frame(maxWidth: .infinity)
@@ -70,7 +69,7 @@ struct WeatherView<WeatherVM: WeatherViewModelProtocol>: View {
                 .font(.title)
                 .redacted(reason: weathervm.state == .loading ? .placeholder : [])
             
-            Text("\(Date().formatted(.dateTime.month().day().hour().minute()))")
+            Text("\(Date().formatted(.dateTime.month().day().hour().minute())) at \(weathervm.weather.coord.lat.roundToString(precision: 2))° \(weathervm.weather.coord.lon.roundToString(precision: 2))°")
                 .fontWeight(.light)
             
         }

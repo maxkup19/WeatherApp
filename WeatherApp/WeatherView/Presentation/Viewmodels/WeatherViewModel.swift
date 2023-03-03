@@ -50,12 +50,13 @@ class WeatherViewModel: WeatherViewModelProtocol {
     
     func fetchWeather() {
         self.state = .loading
+        self.showLoading = true
         updateTime()
         weatherUC.fetchWeather()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 guard let self else { return }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5){
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8){
                     switch completion {
                     case .finished:
                         self.state = .success
@@ -64,6 +65,7 @@ class WeatherViewModel: WeatherViewModelProtocol {
                         self.state = .error
                         self.showError = true
                     }
+                    self.showLoading = false
                 }
             } receiveValue: { [weak self] weather in
                 guard let self else { return }
@@ -75,12 +77,13 @@ class WeatherViewModel: WeatherViewModelProtocol {
     
     func fetchWeatherForCity() {
         self.state = .loading
+        self.showLoading = true
         updateTime()
         weatherUC.fetchWeather(for: city)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 guard let self else { return }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5){
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8){
                     switch completion {
                     case .finished:
                         self.state = .success
@@ -90,6 +93,7 @@ class WeatherViewModel: WeatherViewModelProtocol {
                         self.state = .error
                         self.showError = true
                     }
+                    self.showLoading = false
                 }
             } receiveValue: { [weak self] weather in
                 guard let self else { return }
