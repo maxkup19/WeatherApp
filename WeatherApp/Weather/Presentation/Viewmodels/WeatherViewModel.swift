@@ -12,17 +12,20 @@ protocol WeatherViewModelProtocol: ObservableObject {
     var weather: WeatherModel { get }
     var currentTime: String { get }
     var city: String { get set }
+    var likedLocations: [String] { get set }
     
     var state: FetchState { get }
     var showLoading: Bool { get }
     var showSearch: Bool {  get set }
     var showError: Bool { get set }
     var errorMessage: String { get }
+    var isCurrentLocationLiked: Bool { get }
     
     func onAppear()
     func fetchWeather()
     func fetchWeatherForCity()
     func getWeatherImage() -> String
+    func likeButtonTap()
 }
 
 class WeatherViewModel: WeatherViewModelProtocol {
@@ -30,12 +33,17 @@ class WeatherViewModel: WeatherViewModelProtocol {
     @Published private(set) var weather: WeatherModel = Mock.weather
     @Published private(set) var currentTime: String = "\(Date().formatted(.dateTime.month().day().hour().minute()))"
     @Published var city: String = ""
+    @AppStorage("likedLocations") var likedLocations: [String] = []
     
     @Published private(set) var showLoading: Bool = false
     @Published private(set) var state: FetchState = .none
     @Published private(set) var errorMessage: String = ""
     @Published var showSearch: Bool = false
     @Published var showError: Bool = false
+    
+    var isCurrentLocationLiked: Bool {
+        likedLocations.contains(weather.name)
+    }
     
     private let weatherUC: FetchWeatherUseCaseProtocol
     private var bag = Set<AnyCancellable>()
@@ -120,6 +128,12 @@ class WeatherViewModel: WeatherViewModelProtocol {
         default:
             return "hurricane"
         }
+    }
+    
+    func likeButtonTap() {
+        isCurrentLocationLiked ?
+        likedLocations.removeAll(where: { $0 == weather.name }) :
+        likedLocations.append(weather.name)
     }
 }
 

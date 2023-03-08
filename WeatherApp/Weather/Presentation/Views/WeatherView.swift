@@ -64,10 +64,34 @@ struct WeatherView<WeatherVM: WeatherViewModelProtocol>: View {
     
     private var title: some View {
         VStack(alignment:  .leading, spacing: 5) {
-            Text(weathervm.weather.name)
-                .bold()
+            HStack {
+                Text(weathervm.weather.name)
+                    .bold()
+                    .font(.title)
+                    .redacted(reason: weathervm.state == .loading ? .placeholder : [])
+                
+                Spacer()
+                
+                Button {
+                    withAnimation(.easeInOut) {
+                        weathervm.likeButtonTap()
+                    }
+                } label: {
+                    Image(systemName: weathervm.isCurrentLocationLiked ? "star" : "star.fill")
+                }
                 .font(.title)
-                .redacted(reason: weathervm.state == .loading ? .placeholder : [])
+                .tint(.white)
+                
+                Button {
+                    
+                } label: {
+                    Image(systemName: "list.star")
+                }
+                .font(.title)
+                .tint(.white)
+
+
+            }
             
             Text("\(Date().formatted(.dateTime.month().day().hour().minute())) at \(weathervm.weather.coord.lat.roundToString(precision: 2))° \(weathervm.weather.coord.lon.roundToString(precision: 2))°")
                 .fontWeight(.light)
