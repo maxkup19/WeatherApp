@@ -10,10 +10,10 @@ import CachedAsyncImage
 
 struct WeatherView<WeatherVM: WeatherViewModelProtocol>: View {
     
-    @StateObject private var weathervm: WeatherVM
+    @StateObject private var viewmodel: WeatherVM
     
-    init(weathervm: WeatherVM) {
-        self._weathervm = StateObject(wrappedValue: weathervm)
+    init(viewmodel: WeatherVM) {
+        self._viewmodel = StateObject(wrappedValue: viewmodel)
     }
     
     var body: some View {
@@ -22,20 +22,20 @@ struct WeatherView<WeatherVM: WeatherViewModelProtocol>: View {
             VStack{
                 title
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .redacted(reason: weathervm.state == .loading ? .placeholder : [])
+                    .redacted(reason: viewmodel.state == .loading ? .placeholder : [])
                 Spacer()
                 VStack{
                     feelsLikeSection
-                        .redacted(reason: weathervm.state == .loading ? .placeholder : [])
+                        .redacted(reason: viewmodel.state == .loading ? .placeholder : [])
                     Spacer()
                         .frame(height: 80)
                     cityImage
                         .overlay {
-                            if weathervm.showLoading {
+                            if viewmodel.showLoading {
                                 LoadingView()
                             }
                         }
-                        .onTapGesture { weathervm.showSearch.toggle() }
+                        .onTapGesture { viewmodel.showSearch.toggle() }
                     Spacer()
                 }
                 .frame(maxWidth: .infinity)
@@ -46,44 +46,54 @@ struct WeatherView<WeatherVM: WeatherViewModelProtocol>: View {
             
             detailSection
             
+            if viewmodel.showList {
+                LocationsView(viewmodel: LocationsViewModel(), showLocations: $viewmodel.showList) { city in
+                    viewmodel.city = city
+                    viewmodel.fetchWeatherForCity()
+                }
+                    .padding()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .backgroundStyle(.thinMaterial)
+            }
+            
         }
         .ignoresSafeArea(edges: [.bottom])
         .background(R.Appearance.color.background)
-        .onAppear { withAnimation(.easeInOut) {weathervm.onAppear()} }
-        .onLongPressGesture { withAnimation(.easeInOut) {weathervm.fetchWeather()} }
-        .alert(weathervm.errorMessage, isPresented: $weathervm.showError) {
+        .onAppear { withAnimation(.easeInOut) { viewmodel.onAppear()} }
+        .onLongPressGesture { withAnimation(.easeInOut) {viewmodel.fetchWeather()} }
+        .alert(viewmodel.errorMessage, isPresented: $viewmodel.showError) {
             Button("Ok", role: .cancel, action: {})
         }
-        .alert("Search weather in city", isPresented: $weathervm.showSearch) {
-            TextField("Enter city", text: $weathervm.city)
+        .alert("Search weather in city", isPresented: $viewmodel.showSearch) {
+            TextField("Enter city", text: $viewmodel.city)
             
-            Button("Cancel", role: .cancel, action: { weathervm.city = "" })
-            Button("Search", action: { withAnimation(.easeInOut) {weathervm.fetchWeatherForCity()} })
+            Button("Cancel", role: .cancel, action: { viewmodel.city = "" })
+            Button("Search", action: { withAnimation(.easeInOut) {viewmodel.fetchWeatherForCity()} })
         }
     }
     
     private var title: some View {
         VStack(alignment:  .leading, spacing: 5) {
             HStack {
-                Text(weathervm.weather.name)
+                Text(viewmodel.weather.name)
                     .bold()
                     .font(.title)
-                    .redacted(reason: weathervm.state == .loading ? .placeholder : [])
+                    .redacted(reason: viewmodel.state == .loading ? .placeholder : [])
                 
                 Spacer()
                 
                 Button {
                     withAnimation(.easeInOut) {
-                        weathervm.likeButtonTap()
+                        viewmodel.likeButtonTap()
                     }
                 } label: {
-                    Image(systemName: weathervm.isCurrentLocationLiked ? "star" : "star.fill")
+                    Image(systemName: viewmodel.isCurrentLocationLiked ? "star.fill" : "star")
                 }
                 .font(.title)
                 .tint(.white)
                 
                 Button {
-                    
+                    viewmodel.listButtonTap()
                 } label: {
                     Image(systemName: "list.star")
                 }
@@ -93,7 +103,7 @@ struct WeatherView<WeatherVM: WeatherViewModelProtocol>: View {
 
             }
             
-            Text("\(Date().formatted(.dateTime.month().day().hour().minute())) at \(weathervm.weather.coord.lat.roundToString(precision: 2))° \(weathervm.weather.coord.lon.roundToString(precision: 2))°")
+            Text("\(Date().formatted(.dateTime.month().day().hour().minute())) at \(viewmodel.weather.coord.lat.roundToString(precision: 2))° \(viewmodel.weather.coord.lon.roundToString(precision: 2))°")
                 .fontWeight(.light)
             
         }
@@ -102,22 +112,22 @@ struct WeatherView<WeatherVM: WeatherViewModelProtocol>: View {
     private var feelsLikeSection: some View {
         HStack {
             VStack(spacing: 20) {
-                Image(systemName: weathervm.getWeatherImage())
+                Image(systemName: viewmodel.getWeatherImage())
                     .font(.system(size: 40))
                 
-                Text(weathervm.weather.weather[0].main)
-                    .redacted(reason: weathervm.state == .loading ? .placeholder : [])
+                Text(viewmodel.weather.weather[0].main)
+                    .redacted(reason: viewmodel.state == .loading ? .placeholder : [])
                 
             }
             .frame(width: 150, alignment: .leading)
             
             Spacer()
             
-            Text("\(Int(weathervm.weather.main.feels_like))°")
+            Text("\(Int(viewmodel.weather.main.feels_like))°")
                 .font(.system(size: 100))
                 .fontWeight(.bold)
                 .padding()
-                .redacted(reason: weathervm.state == .loading ? .placeholder : [])
+                .redacted(reason: viewmodel.state == .loading ? .placeholder : [])
         }
     }
     
@@ -148,14 +158,14 @@ struct WeatherView<WeatherVM: WeatherViewModelProtocol>: View {
                     
                     WeatherInfo(imageName: "thermometer.low",
                                 title: "Min temp",
-                                value: "\(Int(weathervm.weather.main.temp_min.rounded()))°")
-                    .redacted(reason: weathervm.state == .loading ? .placeholder : [])
+                                value: "\(Int(viewmodel.weather.main.temp_min.rounded()))°")
+                    .redacted(reason: viewmodel.state == .loading ? .placeholder : [])
                     Spacer()
                     
                     WeatherInfo(imageName: "thermometer.high",
                                 title: "Max temp",
-                                value: "\(Int(weathervm.weather.main.temp_max.rounded()))°")
-                    .redacted(reason: weathervm.state == .loading ? .placeholder : [])
+                                value: "\(Int(viewmodel.weather.main.temp_max.rounded()))°")
+                    .redacted(reason: viewmodel.state == .loading ? .placeholder : [])
                     
                     Spacer()
                 }
@@ -164,15 +174,15 @@ struct WeatherView<WeatherVM: WeatherViewModelProtocol>: View {
                     
                     WeatherInfo(imageName: "wind",
                                 title: "Wind speed",
-                                value: "\(Int(weathervm.weather.wind.speed.rounded())) m/s")
-                    .redacted(reason: weathervm.state == .loading ? .placeholder : [])
+                                value: "\(Int(viewmodel.weather.wind.speed.rounded())) m/s")
+                    .redacted(reason: viewmodel.state == .loading ? .placeholder : [])
                     
                     Spacer()
                     
                     WeatherInfo(imageName: "humidity",
                                 title: "Humidity",
-                                value: "\(Int(weathervm.weather.main.humidity.rounded())) %")
-                    .redacted(reason: weathervm.state == .loading ? .placeholder : [])
+                                value: "\(Int(viewmodel.weather.main.humidity.rounded())) %")
+                    .redacted(reason: viewmodel.state == .loading ? .placeholder : [])
                     Spacer()
                 }
                 

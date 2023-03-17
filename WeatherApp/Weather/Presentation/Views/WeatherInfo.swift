@@ -33,9 +33,3 @@ struct WeatherInfo: View {
         }
     }
 }
-
-struct WeatherInfo_Previews: PreviewProvider {
-    static var previews: some View {
-        WeatherInfo(imageName: "sun.max", title: "Max temp", value: "12")
-    }
-}

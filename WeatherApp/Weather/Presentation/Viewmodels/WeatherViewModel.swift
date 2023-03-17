@@ -17,6 +17,7 @@ protocol WeatherViewModelProtocol: ObservableObject {
     var state: FetchState { get }
     var showLoading: Bool { get }
     var showSearch: Bool {  get set }
+    var showList: Bool { get set }
     var showError: Bool { get set }
     var errorMessage: String { get }
     var isCurrentLocationLiked: Bool { get }
@@ -26,6 +27,7 @@ protocol WeatherViewModelProtocol: ObservableObject {
     func fetchWeatherForCity()
     func getWeatherImage() -> String
     func likeButtonTap()
+    func listButtonTap()
 }
 
 class WeatherViewModel: WeatherViewModelProtocol {
@@ -39,6 +41,7 @@ class WeatherViewModel: WeatherViewModelProtocol {
     @Published private(set) var state: FetchState = .none
     @Published private(set) var errorMessage: String = ""
     @Published var showSearch: Bool = false
+    @Published var showList: Bool = false
     @Published var showError: Bool = false
     
     var isCurrentLocationLiked: Bool {
@@ -134,6 +137,10 @@ class WeatherViewModel: WeatherViewModelProtocol {
         isCurrentLocationLiked ?
         likedLocations.removeAll(where: { $0 == weather.name }) :
         likedLocations.append(weather.name)
+    }
+    
+    func listButtonTap() {
+        self.showList.toggle()
     }
 }
 

@@ -14,7 +14,7 @@ struct ContentView: View {
     var body: some View {
         VStack{
             if locationManager.locationEnabled {
-                WeatherView(weathervm: WeatherViewModel(weatherUC: FetchWeatherUseCase(weatherRepo: WeatherRepository())))
+                WeatherView(viewmodel: WeatherViewModel(weatherUC: FetchWeatherUseCase(weatherRepo: WeatherRepository())))
             } else {
                 WelcomeView()
                     .environmentObject(locationManager)
