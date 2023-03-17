@@ -51,9 +51,9 @@ struct WeatherView<WeatherVM: WeatherViewModelProtocol>: View {
                     viewmodel.city = city
                     viewmodel.fetchWeatherForCity()
                 }
-                    .padding()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .backgroundStyle(.thinMaterial)
+                .padding()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .backgroundStyle(.thinMaterial)
             }
             
         }
@@ -99,8 +99,8 @@ struct WeatherView<WeatherVM: WeatherViewModelProtocol>: View {
                 }
                 .font(.title)
                 .tint(.white)
-
-
+                
+                
             }
             
             Text("\(Date().formatted(.dateTime.month().day().hour().minute())) at \(viewmodel.weather.coord.lat.roundToString(precision: 2))° \(viewmodel.weather.coord.lon.roundToString(precision: 2))°")
