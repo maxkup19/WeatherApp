@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  MainView.swift
 //  WeatherApp
 //
 //  Created by Maksym Kupchenko on 02.03.2023.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct MainView: View {
     
     @StateObject var locationManager = LocationManager()
     
@@ -21,12 +21,5 @@ struct ContentView: View {
             }
         }
         .background(R.Appearance.color.background)
-    }
-}
-
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
     }
 }
