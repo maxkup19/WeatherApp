@@ -38,10 +38,10 @@ struct LocationsView<LocationsVM: LocationsViewModelProtocol>: View {
                 } label: {
                     Image(systemName: "xmark")
                         .font(.headline)
-                            .foregroundColor(.white)
-                            .padding(5)
+                        .foregroundColor(.black)
+                        .padding(5)
                 }
-
+                
             }
             .frame(maxWidth: .infinity)
             Spacer()
@@ -50,26 +50,31 @@ struct LocationsView<LocationsVM: LocationsViewModelProtocol>: View {
             if !viewmodel.locations.isEmpty{
                 ForEach($viewmodel.locations, id: \.self) { location in
                     HStack {
-                            Image(systemName: "pin")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 20, height: 20)
+                        Image(systemName: "pin")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 20, height: 20)
                         
                         VStack(alignment: .leading) {
                             Text(location.wrappedValue)
                                 .font(.headline)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        Button {
+                            viewmodel.removeLocation(location.wrappedValue)
+                        } label: {
+                            Image(systemName: "trash.fill")
+                                .font(.headline)
+                                .foregroundColor(.red)
+                                .padding(5)
+                        }
+                        
                     }
                     .onTapGesture {
                         if let onLocationTap {
                             onLocationTap(location.wrappedValue)
                             showLocations = false
-                        }
-                    }
-                    .onLongPressGesture {
-                        withAnimation{
-                            viewmodel.removeLocation(location.wrappedValue)
                         }
                     }
                 }
@@ -81,9 +86,5 @@ struct LocationsView<LocationsVM: LocationsViewModelProtocol>: View {
             }
             Spacer()
         }
-        .frame(height: 400)
-        .padding()
-        .background(.ultraThinMaterial)
-        .cornerRadius(20)
     }
 }

@@ -46,16 +46,6 @@ struct WeatherView<WeatherVM: WeatherViewModelProtocol>: View {
             
             detailSection
             
-            if viewmodel.showList {
-                LocationsView(viewmodel: LocationsViewModel(), showLocations: $viewmodel.showList) { city in
-                    viewmodel.city = city
-                    viewmodel.fetchWeatherForCity()
-                }
-                .padding()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .backgroundStyle(.thinMaterial)
-            }
-            
         }
         .ignoresSafeArea(edges: [.bottom])
         .background(R.Appearance.color.background)
@@ -69,6 +59,16 @@ struct WeatherView<WeatherVM: WeatherViewModelProtocol>: View {
             
             Button("Cancel", role: .cancel, action: { viewmodel.city = "" })
             Button("Search", action: { withAnimation(.easeInOut) {viewmodel.fetchWeatherForCity()} })
+        }
+        .sheet(isPresented: $viewmodel.showList) {
+            LocationsView(viewmodel: LocationsViewModel(), showLocations: $viewmodel.showList) { city in
+                viewmodel.city = city
+                viewmodel.fetchWeatherForCity()
+            }
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(.ultraThinMaterial)
+            .preferredColorScheme(.light)
         }
     }
     
@@ -156,34 +156,32 @@ struct WeatherView<WeatherVM: WeatherViewModelProtocol>: View {
                 
                 HStack {
                     
-                    WeatherInfo(imageName: "thermometer.low",
-                                title: "Min temp",
-                                value: "\(Int(viewmodel.weather.main.temp_min.rounded()))°")
-                    .redacted(reason: viewmodel.state == .loading ? .placeholder : [])
-                    Spacer()
-                    
-                    WeatherInfo(imageName: "thermometer.high",
-                                title: "Max temp",
-                                value: "\(Int(viewmodel.weather.main.temp_max.rounded()))°")
-                    .redacted(reason: viewmodel.state == .loading ? .placeholder : [])
-                    
-                    Spacer()
-                }
-                
-                HStack {
-                    
-                    WeatherInfo(imageName: "wind",
-                                title: "Wind speed",
-                                value: "\(Int(viewmodel.weather.wind.speed.rounded())) m/s")
-                    .redacted(reason: viewmodel.state == .loading ? .placeholder : [])
+                    VStack(alignment: .leading) {
+                        WeatherInfo(imageName: "thermometer.low",
+                                    title: "Min temp",
+                                    value: "\(Int(viewmodel.weather.main.temp_min.rounded()))°")
+                        .redacted(reason: viewmodel.state == .loading ? .placeholder : [])
+                        
+                        WeatherInfo(imageName: "thermometer.high",
+                                    title: "Max temp",
+                                    value: "\(Int(viewmodel.weather.main.temp_max.rounded()))°")
+                        .redacted(reason: viewmodel.state == .loading ? .placeholder : [])
+                    }
                     
                     Spacer()
                     
-                    WeatherInfo(imageName: "humidity",
-                                title: "Humidity",
-                                value: "\(Int(viewmodel.weather.main.humidity.rounded())) %")
-                    .redacted(reason: viewmodel.state == .loading ? .placeholder : [])
-                    Spacer()
+                    VStack(alignment: .leading) {
+                        WeatherInfo(imageName: "wind",
+                                    title: "Wind speed",
+                                    value: "\(Int(viewmodel.weather.wind.speed.rounded())) m/s")
+                        .redacted(reason: viewmodel.state == .loading ? .placeholder : [])
+                        
+                        
+                        WeatherInfo(imageName: "humidity",
+                                    title: "Humidity",
+                                    value: "\(Int(viewmodel.weather.main.humidity.rounded())) %")
+                        .redacted(reason: viewmodel.state == .loading ? .placeholder : [])
+                    }
                 }
                 
             }
